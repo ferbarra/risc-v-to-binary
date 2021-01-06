@@ -3,7 +3,7 @@
  * the name
  */
 
-var formats = {
+var registerNumbers = {
   'zero'  : 'x0',
   'ra'    : 'x1',
   'sp'    : 'x2',
@@ -38,3 +38,5 @@ var formats = {
   't5'    : 'x30',
   't6'    : 'x31',
 }
+
+export default registerNumbers
