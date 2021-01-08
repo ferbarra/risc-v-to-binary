@@ -49,10 +49,11 @@ function decodeRInstruction(instructionString) {
 
   // get the register numbers if they are in mnemonic form 
   let registerNumbers = registers.map(registerNumber);
-  let binaryRegisterNumbers = registerNumbers.map(decimalToBinary);
+  let registersBinary = registerNumbers.map(decimalToBinary);
+  let registersBinaryExtended = registersBinary 
+    .map(r => { return extendBinary(r, 5, false) });
   
-  console.log(registerNumbers);
-  console.log(binaryRegisterNumbers);
+  console.log(registersBinaryExtended);
   
   return instructionString;
 }
@@ -89,6 +90,28 @@ function decimalToBinary(decimal) {
   return (decimal >>> 0).toString(2);
 }
 
+/*
+ * Adds padding to the left of a binary number so that
+ * it has the specified length. If specified, the
+ * padding will preserve sign. When the desired length
+ * is less than the current length nothing changes.
+ * @param {string} binary Binary number representation
+ * @param {number} length Length of binary after extension
+ */
+function extendBinary(binary, length, preserveSign) {
+  let currentLength = binary.length;
+  if (currentLength >= length) {
+    return binary;
+  }
+  binary = binary.split('');
+  let paddingDigit =  preserveSign ? binary[0] : '0';
+  let paddingLength = length - currentLength;
 
+  for (let i = 0; i < paddingLength; ++i) {
+    binary.unshift(paddingDigit);
+  }
+
+  return binary.join('');
+}
 
 export default riscvToBinary
