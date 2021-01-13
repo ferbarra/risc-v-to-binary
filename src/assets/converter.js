@@ -52,10 +52,56 @@ function decodeRInstruction(instructionString) {
   let registersBinary = registerNumbers.map(decimalToBinary);
   let registersBinaryExtended = registersBinary 
     .map(r => { return extendBinary(r, 5, false) });
-  
-  console.log(registersBinaryExtended);
-  
-  return instructionString;
+
+  // formatted register ready to be assembled
+  let rd = registersBinaryExtended[0];
+  let rs1 = registersBinaryExtended[1];
+  let rs2 = registersBinaryExtended[2];
+
+  let mnemonic = tokens[0];
+  let instructionFormat = formats[mnemonic];
+  let { opcode, funct3, funct7 } = instructionFormat;
+
+  let binary = assemble([
+    {
+      source: opcode,
+      start: 0,
+      end: opcode.length - 1,
+      destination: 0,
+    },
+    {
+      source: rd,
+      start: 0,
+      end: rd.length - 1,
+      destination: 7,
+    },
+    {
+      source: rs1,
+      start: 0,
+      end: rs1.length - 1,
+      destination: 15,
+    },
+    {
+      source: rs2,
+      start: 0,
+      end: rs2.length - 1,
+      destination: 20
+    },
+    {
+      source: funct3,
+      start: 0,
+      end: funct3.legth - 1,
+      destination: 12,
+    },
+    {
+      source: funct7,
+      start: 0,
+      end: funct7.length - 1,
+      destination: 25,
+    }
+  ]);
+
+  return binary.reverse().join('');
 }
 
 function decodeIInstruction(instructionString) {
@@ -112,6 +158,28 @@ function extendBinary(binary, length, preserveSign) {
   }
 
   return binary.join('');
+}
+
+/*
+ * Creates an array made up of parts of other arrays.
+ * @param {Array.<{
+ *    source: string,
+ *    start: number,
+ *    end: number,
+ *    destination: number}>} components - Index is 0 base
+ * @returns {Array} Array formed by the components provided.
+ */
+function assemble(components) {
+  let result = [];
+  for (let component of components) {
+    let { source, start, end, destination } = component;
+    while (start <= end) {
+      result[destination] = source[start];
+      ++start;
+      ++destination;
+    }
+  }
+  return result;
 }
 
 export default riscvToBinary
