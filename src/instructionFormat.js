@@ -1,7 +1,9 @@
 var formats = {
   'add': {
     type: 'R',
-    opcode: '0110011'
+    opcode: '0110011',
+    funct3: '000',
+    funct7: '0000000'
   },
   'addi': {
     type: 'I',
