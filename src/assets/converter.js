@@ -39,7 +39,7 @@ function decodeRInstruction(instructionString) {
   let typeRFormat = /^\s*\w+\s+\w+\s*,\s*\w+\s*,\s*\w+\s*$/;
 
   if (!typeRFormat.test(instructionString)) {
-    return false
+    return null;
   }
   // extract the registers
   let tokensRegex = /\w+/g;
@@ -101,7 +101,7 @@ function decodeRInstruction(instructionString) {
     }
   ]);
 
-  return binary.reverse().join('');
+  return binary.reverse.join('');
 }
 
 function decodeIInstruction(instructionString) {
@@ -109,7 +109,71 @@ function decodeIInstruction(instructionString) {
 }
 
 function decodeSInstruction(instructionString) {
-  return instructionString;
+  // All S instructions have this format:
+  // mnemonic rs2, immidiate(rs1)
+  // where immidiate is an integer.
+  let typeSFormat = /^\s*\w+\s+\w+\s*,\s*\d+\s*\(\s*\w+\s*\)\s*$/;
+  if (!typeSFormat.test(instructionString)) {
+    return null;
+  }
+  let tokensRegex = /\w+/g;
+  let tokens = instructionString.match(tokensRegex);
+  let registers = [ tokens[1], tokens[3] ];
+  
+  // get the register numbers
+  let registerNumbers = registers.map(registerNumber);
+  let registersBinary = registerNumbers.map(decimalToBinary);
+  let registersBinaryExtended = registersBinary 
+    .map(r => { return extendBinary(r, 5, false) });
+
+  let rs1 = registersBinaryExtended[1];
+  let rs2 = registersBinaryExtended[0];
+  
+  let immidiate = extendBinary(decimalToBinary(immidiate), 12, true);
+
+  let mnemonic = tokens[0];
+  let { opcode, funct3 } = formats[mnemonic];
+
+  let binary = assemble([
+    {
+      source: opcode,
+      start: 0,
+      end: 6,
+      destination: 0,
+    },
+    {
+      source: immidiate,
+      start: 0,
+      end: 4,
+      destination: 7,
+    },
+    {
+      source: funct3,
+      start: 0,
+      end: 2,
+      destination: 12,
+    },
+    {
+      source: rs1,
+      start: 0,
+      end: 4,
+      destination: 15,
+    },
+    {
+      source: rs2,
+      start: 0,
+      end: 4,
+      destination: 20,
+    },
+    {
+      source: immidiate,
+      start: 5,
+      end: 11,
+      destination: 25,
+    },
+  ]);
+
+  return binary.reverse().join('');
 }
 
 /**

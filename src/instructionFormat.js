@@ -3,7 +3,13 @@ var formats = {
     type: 'R',
     opcode: '0110011',
     funct3: '000',
-    funct7: '0000000'
+    funct7: '0000000',
+  },
+  'sll': {
+    type: 'R',
+    opcode: '0110011',
+    funct3: '001',
+    funct7: '0000000',
   },
   'addi': {
     type: 'I',
@@ -15,8 +21,9 @@ var formats = {
   },
   'sw': {
     type: 'S',
-    opcode: '0100011'
+    opcode: '0100011',
+    funct3: '010',
   },
-}
+};
 
 export default formats
