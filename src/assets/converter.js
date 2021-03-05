@@ -62,7 +62,7 @@ function decodeRInstruction(instructionString) {
   let instructionFormat = formats[mnemonic];
   let { opcode, funct3, funct7 } = instructionFormat;
 
-  let binary = assemble([
+  let binary = assembleWord([
     {
       source: opcode,
       start: 0,
@@ -101,7 +101,7 @@ function decodeRInstruction(instructionString) {
     }
   ]);
 
-  return binary.reverse.join('');
+  return binary.join('');
 }
 
 function decodeIInstruction(instructionString) {
@@ -134,7 +134,7 @@ function decodeSInstruction(instructionString) {
   let mnemonic = tokens[0];
   let { opcode, funct3 } = formats[mnemonic];
 
-  let binary = assemble([
+  let binary = assembleWord([
     {
       source: opcode,
       start: 0,
@@ -173,7 +173,7 @@ function decodeSInstruction(instructionString) {
     },
   ]);
 
-  return binary.reverse().join('');
+  return binary.join('');
 }
 
 /**
@@ -201,6 +201,19 @@ function decimalToBinary(decimal) {
 }
 
 /*
+ * Returns a string representing the two's complement
+ * of the specified integer. The number of digits
+ * is equal to the parameter "length".
+ * @param {number} base 10 number
+ * @param {number} must be large enough to for the
+ * two's complement
+ * @returns {string} two's complement
+ */
+//function twosComplement(integer, length) {
+
+//}
+
+/*
  * Adds padding to the left of a binary number so that
  * it has the specified length. If specified, the
  * padding will preserve sign. When the desired length
@@ -225,25 +238,28 @@ function extendBinary(binary, length, preserveSign) {
 }
 
 /*
- * Creates an array made up of parts of other arrays.
+ * Combines parts of several arrays (or strings) to form a RISC-V word
+ * represented as an array. The word is indexed from right to left.
+ * That is, destination = 0 maps to word[31].
  * @param {Array.<{
  *    source: string,
  *    start: number,
  *    end: number,
- *    destination: number}>} components - Index is 0 base
+ *    destination: number}>} components
  * @returns {Array} Array formed by the components provided.
  */
-function assemble(components) {
-  let result = [];
+function assembleWord(components) {
+  let word = [];
   for (let component of components) {
     let { source, start, end, destination } = component;
+    let rightIndexedDestination = 32 - (destination + (end - start + 1));
     while (start <= end) {
-      result[destination] = source[start];
+      word[rightIndexedDestination] = source[start];
       ++start;
-      ++destination;
+      ++rightIndexedDestination;
     }
   }
-  return result;
+  return word;
 }
 
 export default riscvToBinary
